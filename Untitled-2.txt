@@ -1,0 +1,188 @@
+#include <stdio.h>
+
+int main(void) {
+    char seats[3][10];
+    int bookedCount = 0;
+
+    for (int row = 0; row < 3; row++) {
+        for (int column = 0; column < 10; column++) {
+            if (row == 2) {
+                seats[row][column] = 'R';
+            } else {
+                seats[row][column] = 'U';
+            }
+        }
+    }
+
+    printf("----------- WELCOME TO KMIT THEATER ------------\n");
+
+    while (bookedCount < 30) {
+        int answer;
+
+        printf("\nSeating chart (U = normal, R = reserved, B = booked):\n");
+        for (int row = 0; row < 3; row++) {
+            printf("Row %d: ", row + 1);
+
+            for (int column = 0; column < 10; column++) {
+                printf("%c ", seats[row][column]);
+
+                if (column == 4) {
+                    printf("   "); 
+                }
+            }
+            printf("\n");
+        }
+
+        printf("\nDo you want to book seats? (1 = yes, 0 = no): ");
+        if (scanf("%d", &answer) != 1) {
+            printf("Invalid input.\n");
+            return 1;
+        }
+
+        if (answer == 0) {
+            break;
+        } else if (answer != 1) {
+            printf("Please enter 1 or 0.\n");
+            continue;
+        }
+
+        int seatType;
+        printf("Book normal seats or reserved seats? (0 = normal, 1 = reserved): ");
+        if (scanf("%d", &seatType) != 1 || (seatType != 0 && seatType != 1)) {
+            printf("Invalid seat type.\n");
+            continue;
+        }
+
+        char wantedSeat;
+        if (seatType == 1) {
+            wantedSeat = 'R';
+        } else {
+            wantedSeat = 'U';
+        }
+
+        int availableCount = 0;
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 10; column++) {
+                if (seats[row][column] == wantedSeat) {
+                    availableCount++;
+                }
+            }
+        }
+
+        if (availableCount == 0) {
+            printf("No seats of that type are available.\n");
+            continue;
+        }
+
+        int seatCount;
+        printf("How many seats do you want? ");
+        if (scanf("%d", &seatCount) != 1 ||
+            seatCount < 1 || seatCount > availableCount) {
+            printf("Invalid number of seats. Available: %d\n", availableCount);
+            continue;
+        }
+
+        int selectedRows[30];
+        int selectedColumns[30];
+        int valid = 1;
+
+        for (int i = 0; i < seatCount; i++) {
+            int row, column;
+
+            printf("Seat %d — enter row (1-3): ", i + 1);
+            if (scanf("%d", &row) != 1) {
+                valid = 0;
+                break;
+            }
+
+            printf("Seat %d — enter column (1-10): ", i + 1);
+            if (scanf("%d", &column) != 1) {
+                valid = 0;
+                break;
+            }
+
+            if (row < 1 || row > 3 || column < 1 || column > 10) {
+                printf("Invalid row or column.\n");
+                valid = 0;
+                break;
+            }
+
+            row--;
+            column--;
+
+            if (seats[row][column] != wantedSeat) {
+                printf("That seat is booked or is not the requested seat type.\n");
+                valid = 0;
+                break;
+            }
+
+            for (int previous = 0; previous < i; previous++) {
+                if (selectedRows[previous] == row &&
+                    selectedColumns[previous] == column) {
+                    printf("You selected that seat more than once.\n");
+                    valid = 0;
+                    break;
+                }
+            }
+
+            if (!valid) {
+                break;
+            }
+
+            selectedRows[i] = row;
+            selectedColumns[i] = column;
+        }
+
+        if (!valid) {
+            printf("Booking was not completed. Please try again.\n");
+            continue;
+        }
+
+        int price;
+        if (seatType == 1) {
+            price = seatCount * 120;
+        } else {
+            price = seatCount * 60;
+        }
+        printf("Price: %d\n", price);
+
+        int id;
+        printf("Enter the ID provided after payment: ");
+        if (scanf("%d", &id) != 1) {
+            printf("Invalid ID input.\n");
+            continue;
+        }
+
+        if (id != 267 && id != 346 && id != 567) {
+            printf("Invalid ID. Seats were not booked.\n");
+            continue;
+        }
+
+        for (int i = 0; i < seatCount; i++) {
+            seats[selectedRows[i]][selectedColumns[i]] = 'B';
+        }
+
+        bookedCount += seatCount;
+        printf("Seat(s) confirmed.\n");
+    }
+
+    printf("\nFinal seating chart:\n");
+    for (int row = 0; row < 3; row++) {
+        printf("Row %d: ", row + 1);
+
+        for (int column = 0; column < 10; column++) {
+            printf("%c ", seats[row][column]);
+
+            if (column == 4) {
+                printf("   ");
+            }
+        }
+        printf("\n");
+    }
+
+    if (bookedCount == 30) {
+        printf("\nAll seats are booked. Seats are not available.\n");
+    }
+
+    return 0;
+}
