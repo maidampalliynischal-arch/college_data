@@ -16,7 +16,7 @@ int main(){
     }
   }
   
-  printf("Index where the target is found: %i \n", index);
+  printf("Index where the target is found: %d \n", index);
   
   return 0;
 }
